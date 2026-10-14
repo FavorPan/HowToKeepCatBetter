@@ -2,3 +2,4 @@
 dist/
 docs/
 .playwright-mcp/
+__pycache__/
