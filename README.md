@@ -2,7 +2,7 @@
 
 一本按「性价比」排序的养猫决策指南。参考 [geekan/HowToLiveLonger](https://github.com/geekan/HowToLiveLonger) 和 [FavorPan/HowToLiveBetter](https://github.com/FavorPan/HowToLiveBetter) 的方法，把同样的账算到养猫这件事上。
 
-> 状态：已写 61 条 —— 第 4 节「吃」20 条（A0/B7/C13）；第 6 节「疫苗与驱虫」20 条（A5/B8/C7）；第 7 节「绝育」15 条（A3/B10/C2）；第 8 节「家里的安全」6 条（A1/B5/C0）；其余各节待补。
+> 状态：已写 71 条 —— 第 4 节「吃」20 条（A0/B7/C13）；第 6 节「疫苗与驱虫」20 条（A5/B8/C7）；第 7 节「绝育」15 条（A3/B10/C2）；第 8 节「家里的安全」16 条（A1/B13/C2）；其余各节待补。
 
 ## 这本书怎么用
 
