@@ -2,7 +2,7 @@
 
 一本按「性价比」排序的养猫决策指南。参考 [geekan/HowToLiveLonger](https://github.com/geekan/HowToLiveLonger) 和 [FavorPan/HowToLiveBetter](https://github.com/FavorPan/HowToLiveBetter) 的方法，把同样的账算到养猫这件事上。
 
-> 状态：骨架阶段，条目逐节补，从「疫苗与驱虫」开始。
+> 状态：第 6 节「疫苗与驱虫」已完成 20 条（A 级 5 条、B 级 8 条、C 级 7 条），其余各节待补。
 
 ## 这本书怎么用
 
