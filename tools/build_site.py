@@ -245,7 +245,13 @@ def validate(readme):
 
 # ---------- 页面模板 ----------
 
-def head(title, desc):
+def head(title, desc, toc_btn=False):
+    toc_btn_html = (
+        '<button type="button" id="toc-toggle" class="linklike toc-btn" '
+        'aria-controls="sidebar" aria-expanded="false">目录</button>'
+        if toc_btn
+        else ""
+    )
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -267,7 +273,7 @@ def head(title, desc):
 <body>
 <header class="site"><div class="wrap bar">
 <a class="brand" href="index.html">高性价比养猫指南</a>
-<nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a><button type="button" id="theme-toggle" class="linklike" hidden aria-label="切换明暗主题">夜间</button></nav>
+<nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a>{toc_btn_html}<button type="button" id="theme-toggle" class="linklike" hidden aria-label="切换明暗主题">夜间</button></nav>
 </div></header>
 <main>"""
 
@@ -289,6 +295,18 @@ r.dataset.theme=n;
 try{{localStorage.setItem('theme',n);}}catch(e){{}}
 paint();
 }});
+}}
+var tb=document.getElementById('toc-toggle');
+if(tb){{
+var sc=document.querySelector('.scrim');
+var sb=document.getElementById('sidebar');
+var close=function(){{document.body.classList.remove('sb-open');tb.setAttribute('aria-expanded','false');}};
+tb.addEventListener('click',function(){{
+var o=document.body.classList.toggle('sb-open');
+tb.setAttribute('aria-expanded',o?'true':'false');
+}});
+if(sc){{sc.addEventListener('click',close);}}
+if(sb){{sb.addEventListener('click',function(ev){{if(ev.target.closest('a'))close();}});}}
 }}
 }})();
 </script>
@@ -382,6 +400,24 @@ def render_index(readme):
     )
 
 
+def render_sidebar(cur):
+    """左侧目录：全部节平铺，当前节展开到条目级并高亮。"""
+    rows = []
+    for s in SECTIONS:
+        cls = "sb-sec cur" if s["no"] == cur["no"] else "sb-sec"
+        rows.append(
+            f'<a class="{cls}" href="{s["no"]:02d}.html"><b>{s["no"]}</b>{html.escape(s["title"])}</a>'
+        )
+        if s["no"] == cur["no"]:
+            rows.append('<div class="sb-entries">')
+            rows.extend(
+                f'<a class="sb-e" href="#e-{s["no"]}-{e["no"]}">{e["no"]}. {html.escape(e["title"])}</a>'
+                for e in s["entries"]
+            )
+            rows.append("</div>")
+    return "\n".join(rows)
+
+
 def render_section_page(sec, prev_sec, next_sec):
     n = sec["no"]
     counts = {"A": 0, "B": 0, "C": 0}
@@ -389,10 +425,6 @@ def render_section_page(sec, prev_sec, next_sec):
         counts[e["ev"]] += 1
     title = f"{n}. {sec['title']} · 高性价比养猫指南"
     desc = re.sub(r"^本节回答：", "", sec["intro"])[:150]
-    mini = "\n".join(
-        f'<a href="#e-{n}-{e["no"]}"><b>{e["no"]}</b>{html.escape(e["title"])}</a>'
-        for e in sec["entries"]
-    )
     prev_link = (
         f'<a class="pg" href="{prev_sec["no"]:02d}.html">'
         f'<span>上一节</span><strong>{prev_sec["no"]}. {html.escape(prev_sec["title"])}</strong></a>'
@@ -406,21 +438,29 @@ def render_section_page(sec, prev_sec, next_sec):
         else "<span></span>"
     )
     return (
-        head(title, desc)
+        head(title, desc, toc_btn=True)
         + f"""
-<article class="page">
+<div class="layout">
+<aside class="sidebar" id="sidebar" aria-label="本书目录">
+<p class="sb-cap">目录</p>
+<nav>
+{render_sidebar(sec)}
+</nav>
+</aside>
+<div class="scrim" aria-hidden="true"></div>
+<article class="page content">
 <header class="page-head wrap">
 <p class="crumb"><a href="index.html">导读</a><span>/</span>第 {n} 节</p>
 <h1>{n}. {html.escape(sec['title'])}</h1>
 <p class="intro">{inline(sec['intro'])}</p>
 <p class="meta">本节 {len(sec['entries'])} 条（A {counts['A']} / B {counts['B']} / C {counts['C']}）</p>
 </header>
-<nav class="mini wrap" aria-label="本节条目目录">{mini}</nav>
 <div class="wrap entries">
 {chr(10).join(render_entry(sec, e) for e in sec['entries'])}
 </div>
 <nav class="pager wrap">{prev_link}{next_link}</nav>
-</article>"""
+</article>
+</div>"""
         + FOOT
     )
 

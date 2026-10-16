@@ -279,33 +279,74 @@ a:hover { color: var(--accent-strong); text-decoration: underline; text-underlin
   font-variant-numeric: tabular-nums;
 }
 
-.mini {
-  max-width: 860px;
-  margin-top: 22px;
+/* ---------- 左侧目录 + 双栏布局 ---------- */
+
+.layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 32px;
-  row-gap: 2px;
+  grid-template-columns: 288px minmax(0, 1fr);
+  align-items: start;
 }
 
-.mini a {
+.content { min-width: 0; }
+
+.sidebar {
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  height: calc(100dvh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 12px 48px 16px;
+  border-right: 1px solid var(--line);
+  scrollbar-width: thin;
+}
+
+.sb-cap {
+  margin: 0 0 8px;
+  padding-left: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.08em;
+}
+
+.sidebar nav { display: flex; flex-direction: column; }
+
+.sb-sec {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  padding: 5px 2px;
+  padding: 6px 12px;
+  border-radius: 8px;
   font-size: 13.5px;
+  line-height: 1.6;
   color: var(--ink-2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.mini a b {
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
+.sb-sec b {
   flex: none;
+  min-width: 1.5em;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
 }
-.mini a:hover { color: var(--accent); text-decoration: none; background: var(--panel); }
+.sb-sec:hover { color: var(--ink); background: var(--panel); text-decoration: none; }
+.sb-sec.cur { color: var(--accent); font-weight: 700; background: var(--wash); }
+.sb-sec.cur b { color: var(--accent); }
+
+.sb-entries { display: flex; flex-direction: column; margin: 2px 0 6px; }
+
+.sb-e {
+  padding: 4px 12px 4px 40px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  border-radius: 8px;
+}
+.sb-e:hover { color: var(--accent); background: var(--panel); text-decoration: none; }
+
+/* 桌面端不显示抽屉按钮；<1024px 见窄屏区 */
+.toc-btn { display: none; }
 
 .entries { max-width: 860px; padding-top: 12px; }
 
@@ -579,12 +620,41 @@ footer p { margin: 0; font-size: 13.5px; color: var(--ink-3); max-width: 46em; }
 
 /* ---------- 窄屏 ---------- */
 
+/* 平板以下：侧栏收成抽屉，顶栏出「目录」按钮 */
+@media (max-width: 1023px) {
+  .layout { display: block; }
+  .toc-btn { display: inline-block; }
+  .sidebar {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    height: auto;
+    width: min(320px, 85vw);
+    background: var(--bg);
+    z-index: 45;
+    transform: translateX(-102%);
+    transition: transform 0.2s ease;
+  }
+  body.sb-open .sidebar { transform: none; }
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 64px 0 0 0;
+    background: rgba(20, 15, 8, 0.35);
+    z-index: 44;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  body.sb-open .scrim { opacity: 1; pointer-events: auto; }
+}
+
 @media (max-width: 767px) {
   .hero { padding: 56px 0 40px; }
   .stats { gap: 28px; }
   .stat strong { font-size: 24px; }
   .toc-grid { grid-template-columns: 1fr; column-gap: 0; }
-  .mini { grid-template-columns: 1fr; }
   .fields { grid-template-columns: 1fr; row-gap: 2px; }
   .fields dt { padding-top: 10px; }
   .fields dd { padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -595,6 +665,9 @@ footer p { margin: 0; font-size: 13.5px; color: var(--ink-3); max-width: 46em; }
   .toolbar { top: 56px; }
   .bar { height: 56px; }
   .site nav { gap: 14px; font-size: 13.5px; }
+  .site nav a[href="index.html"] { display: none; }
+  .sidebar { top: 56px; }
+  .scrim { inset: 56px 0 0 0; }
 }
 
 /* ---------- 动效退让 ---------- */

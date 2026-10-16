@@ -312,6 +312,18 @@ try{localStorage.setItem('theme',n);}catch(e){}
 paint();
 });
 }
+var tb=document.getElementById('toc-toggle');
+if(tb){
+var sc=document.querySelector('.scrim');
+var sb=document.getElementById('sidebar');
+var close=function(){document.body.classList.remove('sb-open');tb.setAttribute('aria-expanded','false');};
+tb.addEventListener('click',function(){
+var o=document.body.classList.toggle('sb-open');
+tb.setAttribute('aria-expanded',o?'true':'false');
+});
+if(sc){sc.addEventListener('click',close);}
+if(sb){sb.addEventListener('click',function(ev){if(ev.target.closest('a'))close();});}
+}
 })();
 </script>
 </body>
