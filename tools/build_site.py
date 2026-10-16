@@ -252,6 +252,7 @@ def head(title, desc, toc_btn=False):
         if toc_btn
         else ""
     )
+    bar_cls = "wrap wide bar" if toc_btn else "wrap bar"
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -271,15 +272,17 @@ def head(title, desc, toc_btn=False):
 </script>
 </head>
 <body>
-<header class="site"><div class="wrap bar">
+<header class="site"><div class="{bar_cls}">
 <a class="brand" href="index.html">高性价比养猫指南</a>
 <nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a>{toc_btn_html}<button type="button" id="theme-toggle" class="linklike" hidden aria-label="切换明暗主题">夜间</button></nav>
 </div></header>
 <main>"""
 
 
-FOOT = f"""</main>
-<footer><div class="wrap">
+def foot(wide=False):
+    wrap_cls = "wrap wide" if wide else "wrap"
+    return f"""</main>
+<footer><div class="{wrap_cls}">
 <p>发现错误、想补条目、有数据可核对，去 <a href="{GITHUB}" target="_blank" rel="noopener">GitHub 仓库</a>开 issue 或提 PR。全文以 CC BY 4.0 发布，转载注明出处即可。</p>
 </div></footer>
 <script>
@@ -396,7 +399,7 @@ def render_index(readme):
 <h2>读懂数字（术语表）</h2>
 {gloss}
 </section>"""
-        + FOOT
+        + foot()
     )
 
 
@@ -461,7 +464,7 @@ def render_section_page(sec, prev_sec, next_sec):
 <nav class="pager wrap">{prev_link}{next_link}</nav>
 </article>
 </div>"""
-        + FOOT
+        + foot(True)
     )
 
 
@@ -546,11 +549,39 @@ def render_all_page(total):
 </details>
 </div>
 <script src="app.js"></script>"""
-        + FOOT
+        + foot()
     )
 
 
 # ---------- 构建 ----------
+
+def build_data(total):
+    """结构化数据包：给未来的 AI Agent / RAG / EPUB 复用。字段与书完全一致。"""
+    return {
+        "total": total,
+        "sections": [
+            {
+                "no": s["no"],
+                "title": s["title"],
+                "intro": s["intro"],
+                "url": f"{s['no']:02d}.html",
+                "entries": [
+                    {
+                        "no": e["no"],
+                        "title": e["title"],
+                        "anchor": f"e-{s['no']}-{e['no']}",
+                        "url": f"{s['no']:02d}.html#e-{s['no']}-{e['no']}",
+                        "ev": e["ev"],
+                        "tags": e["tags"],
+                        "fields": e["fields"],
+                    }
+                    for e in s["entries"]
+                ],
+            }
+            for s in SECTIONS
+        ],
+    }
+
 
 def main():
     for path in sorted(BOOK_DIR.glob("*.md")):
@@ -580,30 +611,7 @@ def main():
         die(f"缺资源目录 {ASSETS_DIR}")
 
     # 结构化数据包：给未来的 AI Agent / RAG / EPUB 复用。字段与书完全一致。
-    data = {
-        "total": total,
-        "sections": [
-            {
-                "no": s["no"],
-                "title": s["title"],
-                "intro": s["intro"],
-                "url": f"{s['no']:02d}.html",
-                "entries": [
-                    {
-                        "no": e["no"],
-                        "title": e["title"],
-                        "anchor": f"e-{s['no']}-{e['no']}",
-                        "url": f"{s['no']:02d}.html#e-{s['no']}-{e['no']}",
-                        "ev": e["ev"],
-                        "tags": e["tags"],
-                        "fields": e["fields"],
-                    }
-                    for e in s["entries"]
-                ],
-            }
-            for s in SECTIONS
-        ],
-    }
+    data = build_data(total)
     data_dir = OUT_DIR / "data"
     data_dir.mkdir(exist_ok=True)
     payload = json.dumps(data, ensure_ascii=False, indent=1)

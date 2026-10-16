@@ -77,6 +77,9 @@ body {
   padding-right: 24px;
 }
 
+/* 节页的顶栏和页脚与双栏容器同宽，品牌对齐侧栏左缘 */
+.wrap.wide { max-width: 1400px; }
+
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-strong); text-decoration: underline; text-underline-offset: 3px; }
 
@@ -285,6 +288,8 @@ a:hover { color: var(--accent-strong); text-decoration: underline; text-underlin
   display: grid;
   grid-template-columns: 288px minmax(0, 1fr);
   align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .content { min-width: 0; }
@@ -297,6 +302,7 @@ a:hover { color: var(--accent-strong); text-decoration: underline; text-underlin
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 20px 12px 48px 16px;
+  background: var(--panel);
   border-right: 1px solid var(--line);
   scrollbar-width: thin;
 }
@@ -330,20 +336,26 @@ a:hover { color: var(--accent-strong); text-decoration: underline; text-underlin
   font-variant-numeric: tabular-nums;
   color: var(--ink-3);
 }
-.sb-sec:hover { color: var(--ink); background: var(--panel); text-decoration: none; }
+.sb-sec:hover { color: var(--ink); background: var(--wash); text-decoration: none; }
 .sb-sec.cur { color: var(--accent); font-weight: 700; background: var(--wash); }
 .sb-sec.cur b { color: var(--accent); }
 
-.sb-entries { display: flex; flex-direction: column; margin: 2px 0 6px; }
+.sb-entries {
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0 6px 22px;
+  padding-left: 4px;
+  border-left: 1px solid var(--line);
+}
 
 .sb-e {
-  padding: 4px 12px 4px 40px;
+  padding: 4px 10px;
   font-size: 12.5px;
   line-height: 1.6;
   color: var(--ink-3);
   border-radius: 8px;
 }
-.sb-e:hover { color: var(--accent); background: var(--panel); text-decoration: none; }
+.sb-e:hover { color: var(--accent); background: var(--wash); text-decoration: none; }
 
 /* 桌面端不显示抽屉按钮；<1024px 见窄屏区 */
 .toc-btn { display: none; }
@@ -631,7 +643,6 @@ footer p { margin: 0; font-size: 13.5px; color: var(--ink-3); max-width: 46em; }
     bottom: 0;
     height: auto;
     width: min(320px, 85vw);
-    background: var(--bg);
     z-index: 45;
     transform: translateX(-102%);
     transition: transform 0.2s ease;
