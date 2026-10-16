@@ -1,35 +1,54 @@
 /* 高性价比养猫指南 · 静态站样式
-   设计基调：编辑型阅读站，信任优先。
-   单一锈橙点缀（terracotta），石灰中性底；明暗双模式跟随系统；
+   设计基调：编辑型阅读站，信任优先，羊皮书主题（Favor 2026-10-15 指定暖纸色，
+   覆盖 anti-slop 规则对该色系的默认禁令）。
+   亮色 = 羊皮纸底 + 墨色字 + 锈橙当朱批色；暗色 = 暖深棕（皮革/木头调），不做冷黑。
+   默认亮色；手动切换记 localStorage；未选择时跟随系统。
    动效只在 hover/focus 级，全部尊重 prefers-reduced-motion。 */
 
 :root {
-  --bg: #fafaf9;
-  --panel: #ffffff;
-  --ink: #1c1917;
-  --ink-2: #44403c;
-  --ink-3: #78716c;
-  --line: #e7e5e4;
+  --bg: #f4ede0;
+  --panel: #fbf7ec;
+  --ink: #29221a;
+  --ink-2: #5c5245;
+  --ink-3: #6f6353;
+  --line: #e2d7c3;
   --accent: #9a3412;
   --accent-strong: #7c2d12;
   --accent-cta: #9a3412;
-  --wash: #f0e7e2;
-  --shadow: 0 1px 2px rgba(28, 25, 23, 0.06);
+  --cta-text: #fbf7ec;
+  --wash: #ecdfc7;
+  --shadow: 0 1px 2px rgba(60, 48, 32, 0.08);
+}
+
+:root[data-theme="dark"] {
+  --bg: #211a11;
+  --panel: #2b2317;
+  --ink: #ede3d0;
+  --ink-2: #d9cdb8;
+  --ink-3: #a3967f;
+  --line: #3a3021;
+  --accent: #e8a262;
+  --accent-strong: #f3bc84;
+  --accent-cta: #c2410c;
+  --cta-text: #fff7ec;
+  --wash: rgba(232, 162, 98, 0.15);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0c0a09;
-    --panel: #1c1917;
-    --ink: #e7e5e4;
-    --ink-2: #d6d3d1;
-    --ink-3: #a8a29e;
-    --line: #292524;
-    --accent: #fb923c;
-    --accent-strong: #fdba74;
+  :root:not([data-theme="light"]) {
+    --bg: #211a11;
+    --panel: #2b2317;
+    --ink: #ede3d0;
+    --ink-2: #d9cdb8;
+    --ink-3: #a3967f;
+    --line: #3a3021;
+    --accent: #e8a262;
+    --accent-strong: #f3bc84;
     --accent-cta: #c2410c;
-    --wash: rgba(251, 146, 60, 0.13);
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --cta-text: #fff7ec;
+    --wash: rgba(232, 162, 98, 0.15);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -167,7 +186,7 @@ a:hover { color: var(--accent-strong); text-decoration: underline; text-underlin
 .btn.primary {
   background: var(--accent-cta);
   border-color: var(--accent-cta);
-  color: #fff;
+  color: var(--cta-text);
 }
 .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
 
@@ -488,7 +507,7 @@ a:hover { color: var(--accent-strong); text-decoration: underline; text-underlin
 .fchip.on {
   background: var(--accent-cta);
   border-color: var(--accent-cta);
-  color: #fff;
+  color: var(--cta-text);
   font-weight: 600;
 }
 

@@ -8,15 +8,18 @@
 <meta property="og:title" content="3. 接猫第一周 · 高性价比养猫指南">
 <meta property="og:description" content="接猫头几天怎么布置、怎么相处、要做哪些检查，猫砂盆怎么摆，多猫家庭怎么介绍新猫。排序按性价比：花钱少、收益大的在前。">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0c0a09" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4ede0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#211a11" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239a3412'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3E%E7%8C%AB%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
+<script>
+(function(){try{var t=localStorage.getItem('theme');if(!t&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';if(t)document.documentElement.dataset.theme=t;}catch(e){}})();
+</script>
 </head>
 <body>
 <header class="site"><div class="wrap bar">
 <a class="brand" href="index.html">高性价比养猫指南</a>
-<nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="https://github.com/FavorPan/HowToKeepCatBetter" target="_blank" rel="noopener">GitHub</a></nav>
+<nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="https://github.com/FavorPan/HowToKeepCatBetter" target="_blank" rel="noopener">GitHub</a><button type="button" id="theme-toggle" class="linklike" hidden aria-label="切换明暗主题">夜间</button></nav>
 </div></header>
 <main>
 <article class="page">
@@ -231,5 +234,21 @@
 <footer><div class="wrap">
 <p>发现错误、想补条目、有数据可核对，去 <a href="https://github.com/FavorPan/HowToKeepCatBetter" target="_blank" rel="noopener">GitHub 仓库</a>开 issue 或提 PR。全文以 CC BY 4.0 发布，转载注明出处即可。</p>
 </div></footer>
+<script>
+(function(){
+var b=document.getElementById('theme-toggle');
+var r=document.documentElement;
+function paint(){b.textContent=r.dataset.theme==='dark'?'日间':'夜间';b.hidden=false;}
+if(b){
+paint();
+b.addEventListener('click',function(){
+var n=r.dataset.theme==='dark'?'light':'dark';
+r.dataset.theme=n;
+try{localStorage.setItem('theme',n);}catch(e){}
+paint();
+});
+}
+})();
+</script>
 </body>
 </html>

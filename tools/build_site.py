@@ -12,6 +12,7 @@
 """
 
 import html
+import json
 import re
 import shutil
 import sys
@@ -255,15 +256,18 @@ def head(title, desc):
 <meta property="og:title" content="{html.escape(title, quote=True)}">
 <meta property="og:description" content="{html.escape(desc, quote=True)}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0c0a09" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4ede0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#211a11" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="{FAVICON}">
 <link rel="stylesheet" href="style.css">
+<script>
+(function(){{try{{var t=localStorage.getItem('theme');if(!t&&matchMedia('(prefers-color-scheme: dark)').matches)t='dark';if(t)document.documentElement.dataset.theme=t;}}catch(e){{}}}})();
+</script>
 </head>
 <body>
 <header class="site"><div class="wrap bar">
 <a class="brand" href="index.html">高性价比养猫指南</a>
-<nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a></nav>
+<nav><a href="index.html">导读</a><a href="all.html">全部条目</a><a href="{GITHUB}" target="_blank" rel="noopener">GitHub</a><button type="button" id="theme-toggle" class="linklike" hidden aria-label="切换明暗主题">夜间</button></nav>
 </div></header>
 <main>"""
 
@@ -272,6 +276,22 @@ FOOT = f"""</main>
 <footer><div class="wrap">
 <p>发现错误、想补条目、有数据可核对，去 <a href="{GITHUB}" target="_blank" rel="noopener">GitHub 仓库</a>开 issue 或提 PR。全文以 CC BY 4.0 发布，转载注明出处即可。</p>
 </div></footer>
+<script>
+(function(){{
+var b=document.getElementById('theme-toggle');
+var r=document.documentElement;
+function paint(){{b.textContent=r.dataset.theme==='dark'?'日间':'夜间';b.hidden=false;}}
+if(b){{
+paint();
+b.addEventListener('click',function(){{
+var n=r.dataset.theme==='dark'?'light':'dark';
+r.dataset.theme=n;
+try{{localStorage.setItem('theme',n);}}catch(e){{}}
+paint();
+}});
+}}
+}})();
+</script>
 </body>
 </html>"""
 
@@ -519,7 +539,38 @@ def main():
     else:
         die(f"缺资源目录 {ASSETS_DIR}")
 
+    # 结构化数据包：给未来的 AI Agent / RAG / EPUB 复用。字段与书完全一致。
+    data = {
+        "total": total,
+        "sections": [
+            {
+                "no": s["no"],
+                "title": s["title"],
+                "intro": s["intro"],
+                "url": f"{s['no']:02d}.html",
+                "entries": [
+                    {
+                        "no": e["no"],
+                        "title": e["title"],
+                        "anchor": f"e-{s['no']}-{e['no']}",
+                        "url": f"{s['no']:02d}.html#e-{s['no']}-{e['no']}",
+                        "ev": e["ev"],
+                        "tags": e["tags"],
+                        "fields": e["fields"],
+                    }
+                    for e in s["entries"]
+                ],
+            }
+            for s in SECTIONS
+        ],
+    }
+    data_dir = OUT_DIR / "data"
+    data_dir.mkdir(exist_ok=True)
+    payload = json.dumps(data, ensure_ascii=False, indent=1)
+    (data_dir / "entries.json").write_text(payload, encoding="utf-8")
+
     print(f"完成：{len(SECTIONS)} 节 {total} 条，{len(pages)} 个页面 → {OUT_DIR}/")
+    print(f"  数据包：data/entries.json（{len(payload)} 字符）")
     for sec in SECTIONS:
         print(f"  {sec['no']:02d} {sec['title']}：{len(sec['entries'])} 条")
 
