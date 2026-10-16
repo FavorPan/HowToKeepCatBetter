@@ -1,0 +1,45 @@
+name: deploy-site
+
+# push 到 main 就重新构建并发布 site/ 到 GitHub Pages。
+# 构建脚本自带强校验（条数、证据分级、交叉引用），对不上会直接失败，不会发布半成品。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: 测试
+        run: |
+          python3 tools/test_stats.py
+          python3 tools/test_build_site.py
+      - name: 构建站点
+        run: python3 tools/build_site.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
