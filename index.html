@@ -699,9 +699,9 @@ function fieldRow(label, parts, terms){
   row.appendChild(k); row.appendChild(v);
   return row;
 }
-function fillCard(e, terms){
+function fillCard(e, terms, cardEl){
   e._fk = terms.join(' ');
-  const c = document.getElementById('e-' + e.id);
+  const c = cardEl || document.getElementById('e-' + e.id);
   const body = c.querySelector('.card-b'); body.textContent = '';
   const p = document.createElement('p'); p.className = 'human';
   renderInto(p, e.human, terms); body.appendChild(p);
@@ -814,7 +814,7 @@ function build(sections){
     for (const e of s.entries){
       const c = renderCard(e);
       block.appendChild(c);
-      fillCard(e, []);
+      fillCard(e, [], c);   // 块还没进文档，直接传卡片引用，别走 getElementById
     }
     CUR_SEC = '';
     LIST.appendChild(block);
@@ -862,7 +862,13 @@ addEventListener('popstate', ev => {
 /* 滚动监听：判定线取视口偏上三成，写 hash、同步目录高亮 */
 let spyTick = false;
 addEventListener('scroll', () => {
-  hidePops();
+  // 浮层跟着锚点走：锚点还在视口里就重新定位，滚出去才关。
+  // 点视口边缘的链接时浏览器自己会把焦点元素滚进视口，一律关掉会误伤刚点开的浮层。
+  if (popShown){
+    const r = popAnchorEl.getBoundingClientRect();
+    if (!popAnchorEl.isConnected || r.bottom < -4 || r.top > innerHeight + 4) hidePops();
+    else placePop(popShown, popAnchorEl);
+  }
   if (spyTick) return; spyTick = true;
   setTimeout(() => { spyTick = false; if (!gotoLock) spy(); }, 160);
 }, { passive: true });
@@ -901,7 +907,8 @@ function placePop(pop, anchor){
   pop.style.left = Math.max(8, x) + 'px';
   pop.style.top = y + 'px';
 }
-function hidePops(){ XP.hidden = true; POP.hidden = true; }
+let popShown = null, popAnchorEl = null;   // 开着的浮层和它的锚点，滚动时要跟着走
+function hidePops(){ XP.hidden = true; POP.hidden = true; popShown = null; popAnchorEl = null; }
 function showXref(keys, anchor){
   POP.hidden = true;
   XP.textContent = '';
@@ -942,6 +949,7 @@ function showXref(keys, anchor){
     XP.appendChild(row);
   }
   placePop(XP, anchor);
+  popShown = XP; popAnchorEl = anchor;
 }
 function showPop(term, anchor){
   XP.hidden = true;
@@ -950,14 +958,14 @@ function showPop(term, anchor){
   const p = document.createElement('p'); p.textContent = GLOSS_MAP.get(term) || '';
   POP.appendChild(b); POP.appendChild(p);
   placePop(POP, anchor);
+  popShown = POP; popAnchorEl = anchor;
 }
 document.addEventListener('click', ev => {
   const x = ev.target.closest?.('.xref');
   if (x){ ev.preventDefault(); showXref(x.dataset.keys.split(','), x); return; }
   const t = ev.target.closest?.('abbr.term');
   if (t){ showPop(t.dataset.term, t); return; }
-  if (!XP.hidden && !XP.contains(ev.target)) XP.hidden = true;
-  if (!POP.hidden && !POP.contains(ev.target)) POP.hidden = true;
+  if ((!XP.hidden && !XP.contains(ev.target)) || (!POP.hidden && !POP.contains(ev.target))) hidePops();
 });
 document.addEventListener('keydown', ev => {
   if (ev.key === 'Escape'){ hidePops(); if (innerWidth < 1024) closeSb(); }
@@ -1123,6 +1131,8 @@ function wire(){
         + '然后访问 <code>http://localhost:8000/</code>；或直接用 GitHub Pages 地址。';
       return;
     }
+    // build 中途出错时 status 已被移出文档，放回去，报错才看得见
+    if (!status.isConnected) LIST.appendChild(status);
     status.innerHTML = '读取正文失败（' + esc(String(err.message)) + '）。'
       + '<div><button type="button" id="retry">重试</button></div>';
     $('#retry').addEventListener('click', () => {
