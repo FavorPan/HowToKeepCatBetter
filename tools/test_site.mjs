@@ -120,3 +120,10 @@ test('app 脚本通过 node --check', () => {
   const r = spawnSync(process.execPath, ['--check', p]);
   assert.equal(r.status, 0, 'app 脚本语法错误：' + r.stderr);
 });
+
+test('lib 和 app 两个 script 块能共存（顶层绑定不冲突）', () => {
+  // 经典 script 的顶层 const/function 共享全局词法作用域，app 里再声明一遍同名
+  // 绑定会让整个 app 脚本 SyntaxError，页面永远停在「正在读取正文」。
+  // 只拼在一起做编译（不执行，不需要 DOM），重复声明在这一步就会抛错。
+  assert.doesNotThrow(() => new Function(libSrc[1] + '\n' + appSrc[1]));
+});

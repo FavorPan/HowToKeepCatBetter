@@ -525,7 +525,8 @@ globalThis.__LIB__ = { esc, COST_W, ratioOf, parseTag, parseReadme, parseGlossar
 <script id="app">
 'use strict';
 /* ============ 应用：状态、渲染、筛选、跳转 ============ */
-const { esc, COST_W, ratioOf, parseReadme, parseGlossary, splitSrc, splitGain, XREF_RE, xrefKeysOf } = globalThis.__LIB__;
+// 解析函数直接用 lib 脚本的顶层绑定：经典 script 的顶层 const 共享全局词法作用域，
+// 这里不能再 const 一遍，否则整个脚本 SyntaxError，页面会永远停在「正在读取正文」。
 
 const $ = s => document.querySelector(s);
 const POP = $('#pop'), XP = $('#xref-pop');
@@ -937,7 +938,7 @@ function showXref(keys, anchor){
       XP.appendChild(row);
       continue;
     }
-    row.appendChild(go);
+    row.appendChild(b); row.appendChild(go);
     XP.appendChild(row);
   }
   placePop(XP, anchor);
